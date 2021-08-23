@@ -16,25 +16,24 @@ const saveToLocalStorage = (key, state) => {
   }
 };
 
-const loadFromLocalStorage = () => {
+const loadFromLocalStorage = (key) => {
   try {
-    const token = JSON.parse(localStorage.getItem("token"));
-    const profile = JSON.parse(localStorage.getItem("profile"));
-    if (!token || !profile) return {};
-    return { loginForm: { token, profile } };
+    const stateStr = localStorage.getItem(key);
+    return stateStr ? JSON.parse(stateStr) : undefined;
   } catch (e) {
     console.error(e);
     return undefined;
   }
 };
 
-const persistedStore = loadFromLocalStorage();
-
-const store = createStore(reducer, persistedStore, applyMiddleware(thunk));
+const store = createStore(
+  reducer,
+  { loginForm: loadFromLocalStorage("loginForm") },
+  applyMiddleware(thunk)
+);
 
 store.subscribe(() => {
-  saveToLocalStorage("token", store.getState().loginForm.token);
-  saveToLocalStorage("profile", store.getState().loginForm.profile);
+  saveToLocalStorage("loginForm", store.getState().loginForm);
 });
 
 export default store;
